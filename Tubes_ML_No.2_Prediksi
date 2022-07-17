@@ -1,0 +1,780 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "capek",
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "CMs9jJnQDtjn"
+      },
+      "outputs": [],
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "from sklearn import linear_model\n",
+        "import seaborn as sns\n",
+        "%matplotlib inline"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "dataset = pd.read_csv(\"capek.csv\")"
+      ],
+      "metadata": {
+        "id": "orQPA4fTD0sR"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "dataset.head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "vJBjjhPoE_RA",
+        "outputId": "6f8561d4-918b-4f03-81bf-64d135bbf583"
+      },
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "     provinsi  kota_kabupaten  tahun     bulan  jumlah  deklarasi_bulan  total\n",
+              "0  Jawa Timur  Kota Mojokerto   2017   Januari     153                1    153\n",
+              "1  Jawa Timur  Kota Mojokerto   2017  Februari     124                2    277\n",
+              "2  Jawa Timur  Kota Mojokerto   2017     Maret     375                3    652\n",
+              "3  Jawa Timur  Kota Mojokerto   2017     April     321                4    973\n",
+              "4  Jawa Timur  Kota Mojokerto   2017       Mei     184                5   1157"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-78340016-151f-4d01-8b98-71915ceda4c0\">\n",
+              "    <div class=\"colab-df-container\">\n",
+              "      <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>provinsi</th>\n",
+              "      <th>kota_kabupaten</th>\n",
+              "      <th>tahun</th>\n",
+              "      <th>bulan</th>\n",
+              "      <th>jumlah</th>\n",
+              "      <th>deklarasi_bulan</th>\n",
+              "      <th>total</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>Jawa Timur</td>\n",
+              "      <td>Kota Mojokerto</td>\n",
+              "      <td>2017</td>\n",
+              "      <td>Januari</td>\n",
+              "      <td>153</td>\n",
+              "      <td>1</td>\n",
+              "      <td>153</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>Jawa Timur</td>\n",
+              "      <td>Kota Mojokerto</td>\n",
+              "      <td>2017</td>\n",
+              "      <td>Februari</td>\n",
+              "      <td>124</td>\n",
+              "      <td>2</td>\n",
+              "      <td>277</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>Jawa Timur</td>\n",
+              "      <td>Kota Mojokerto</td>\n",
+              "      <td>2017</td>\n",
+              "      <td>Maret</td>\n",
+              "      <td>375</td>\n",
+              "      <td>3</td>\n",
+              "      <td>652</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>Jawa Timur</td>\n",
+              "      <td>Kota Mojokerto</td>\n",
+              "      <td>2017</td>\n",
+              "      <td>April</td>\n",
+              "      <td>321</td>\n",
+              "      <td>4</td>\n",
+              "      <td>973</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>Jawa Timur</td>\n",
+              "      <td>Kota Mojokerto</td>\n",
+              "      <td>2017</td>\n",
+              "      <td>Mei</td>\n",
+              "      <td>184</td>\n",
+              "      <td>5</td>\n",
+              "      <td>1157</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "      <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-78340016-151f-4d01-8b98-71915ceda4c0')\"\n",
+              "              title=\"Convert this dataframe to an interactive table.\"\n",
+              "              style=\"display:none;\">\n",
+              "        \n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "       width=\"24px\">\n",
+              "    <path d=\"M0 0h24v24H0V0z\" fill=\"none\"/>\n",
+              "    <path d=\"M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z\"/><path d=\"M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z\"/>\n",
+              "  </svg>\n",
+              "      </button>\n",
+              "      \n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      flex-wrap:wrap;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "      <script>\n",
+              "        const buttonEl =\n",
+              "          document.querySelector('#df-78340016-151f-4d01-8b98-71915ceda4c0 button.colab-df-convert');\n",
+              "        buttonEl.style.display =\n",
+              "          google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "        async function convertToInteractive(key) {\n",
+              "          const element = document.querySelector('#df-78340016-151f-4d01-8b98-71915ceda4c0');\n",
+              "          const dataTable =\n",
+              "            await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                     [key], {});\n",
+              "          if (!dataTable) return;\n",
+              "\n",
+              "          const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "            '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "            + ' to learn more about interactive tables.';\n",
+              "          element.innerHTML = '';\n",
+              "          dataTable['output_type'] = 'display_data';\n",
+              "          await google.colab.output.renderOutput(dataTable, element);\n",
+              "          const docLink = document.createElement('div');\n",
+              "          docLink.innerHTML = docLinkHtml;\n",
+              "          element.appendChild(docLink);\n",
+              "        }\n",
+              "      </script>\n",
+              "    </div>\n",
+              "  </div>\n",
+              "  "
+            ]
+          },
+          "metadata": {},
+          "execution_count": 4
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from pydoc import help\n",
+        "from scipy.stats.stats import pearsonr\n",
+        "help(pearsonr)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Pc8PUo-iFJ5u",
+        "outputId": "ae1dc47d-984a-4f8c-cdc8-6dd04b4fe0ec"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Help on function pearsonr in module scipy.stats.stats:\n",
+            "\n",
+            "pearsonr(x, y)\n",
+            "    Pearson correlation coefficient and p-value for testing non-correlation.\n",
+            "    \n",
+            "    The Pearson correlation coefficient [1]_ measures the linear relationship\n",
+            "    between two datasets.  The calculation of the p-value relies on the\n",
+            "    assumption that each dataset is normally distributed.  (See Kowalski [3]_\n",
+            "    for a discussion of the effects of non-normality of the input on the\n",
+            "    distribution of the correlation coefficient.)  Like other correlation\n",
+            "    coefficients, this one varies between -1 and +1 with 0 implying no\n",
+            "    correlation. Correlations of -1 or +1 imply an exact linear relationship.\n",
+            "    Positive correlations imply that as x increases, so does y. Negative\n",
+            "    correlations imply that as x increases, y decreases.\n",
+            "    \n",
+            "    The p-value roughly indicates the probability of an uncorrelated system\n",
+            "    producing datasets that have a Pearson correlation at least as extreme\n",
+            "    as the one computed from these datasets.\n",
+            "    \n",
+            "    Parameters\n",
+            "    ----------\n",
+            "    x : (N,) array_like\n",
+            "        Input array.\n",
+            "    y : (N,) array_like\n",
+            "        Input array.\n",
+            "    \n",
+            "    Returns\n",
+            "    -------\n",
+            "    r : float\n",
+            "        Pearson's correlation coefficient.\n",
+            "    p-value : float\n",
+            "        Two-tailed p-value.\n",
+            "    \n",
+            "    Warns\n",
+            "    -----\n",
+            "    PearsonRConstantInputWarning\n",
+            "        Raised if an input is a constant array.  The correlation coefficient\n",
+            "        is not defined in this case, so ``np.nan`` is returned.\n",
+            "    \n",
+            "    PearsonRNearConstantInputWarning\n",
+            "        Raised if an input is \"nearly\" constant.  The array ``x`` is considered\n",
+            "        nearly constant if ``norm(x - mean(x)) < 1e-13 * abs(mean(x))``.\n",
+            "        Numerical errors in the calculation ``x - mean(x)`` in this case might\n",
+            "        result in an inaccurate calculation of r.\n",
+            "    \n",
+            "    See Also\n",
+            "    --------\n",
+            "    spearmanr : Spearman rank-order correlation coefficient.\n",
+            "    kendalltau : Kendall's tau, a correlation measure for ordinal data.\n",
+            "    \n",
+            "    Notes\n",
+            "    -----\n",
+            "    The correlation coefficient is calculated as follows:\n",
+            "    \n",
+            "    .. math::\n",
+            "    \n",
+            "        r = \\frac{\\sum (x - m_x) (y - m_y)}\n",
+            "                 {\\sqrt{\\sum (x - m_x)^2 \\sum (y - m_y)^2}}\n",
+            "    \n",
+            "    where :math:`m_x` is the mean of the vector :math:`x` and :math:`m_y` is\n",
+            "    the mean of the vector :math:`y`.\n",
+            "    \n",
+            "    Under the assumption that x and y are drawn from independent normal\n",
+            "    distributions (so the population correlation coefficient is 0), the\n",
+            "    probability density function of the sample correlation coefficient r\n",
+            "    is ([1]_, [2]_)::\n",
+            "    \n",
+            "               (1 - r**2)**(n/2 - 2)\n",
+            "        f(r) = ---------------------\n",
+            "                  B(1/2, n/2 - 1)\n",
+            "    \n",
+            "    where n is the number of samples, and B is the beta function.  This\n",
+            "    is sometimes referred to as the exact distribution of r.  This is\n",
+            "    the distribution that is used in `pearsonr` to compute the p-value.\n",
+            "    The distribution is a beta distribution on the interval [-1, 1],\n",
+            "    with equal shape parameters a = b = n/2 - 1.  In terms of SciPy's\n",
+            "    implementation of the beta distribution, the distribution of r is::\n",
+            "    \n",
+            "        dist = scipy.stats.beta(n/2 - 1, n/2 - 1, loc=-1, scale=2)\n",
+            "    \n",
+            "    The p-value returned by `pearsonr` is a two-sided p-value.  For a\n",
+            "    given sample with correlation coefficient r, the p-value is\n",
+            "    the probability that abs(r') of a random sample x' and y' drawn from\n",
+            "    the population with zero correlation would be greater than or equal\n",
+            "    to abs(r).  In terms of the object ``dist`` shown above, the p-value\n",
+            "    for a given r and length n can be computed as::\n",
+            "    \n",
+            "        p = 2*dist.cdf(-abs(r))\n",
+            "    \n",
+            "    When n is 2, the above continuous distribution is not well-defined.\n",
+            "    One can interpret the limit of the beta distribution as the shape\n",
+            "    parameters a and b approach a = b = 0 as a discrete distribution with\n",
+            "    equal probability masses at r = 1 and r = -1.  More directly, one\n",
+            "    can observe that, given the data x = [x1, x2] and y = [y1, y2], and\n",
+            "    assuming x1 != x2 and y1 != y2, the only possible values for r are 1\n",
+            "    and -1.  Because abs(r') for any sample x' and y' with length 2 will\n",
+            "    be 1, the two-sided p-value for a sample of length 2 is always 1.\n",
+            "    \n",
+            "    References\n",
+            "    ----------\n",
+            "    .. [1] \"Pearson correlation coefficient\", Wikipedia,\n",
+            "           https://en.wikipedia.org/wiki/Pearson_correlation_coefficient\n",
+            "    .. [2] Student, \"Probable error of a correlation coefficient\",\n",
+            "           Biometrika, Volume 6, Issue 2-3, 1 September 1908, pp. 302-310.\n",
+            "    .. [3] C. J. Kowalski, \"On the Effects of Non-Normality on the Distribution\n",
+            "           of the Sample Product-Moment Correlation Coefficient\"\n",
+            "           Journal of the Royal Statistical Society. Series C (Applied\n",
+            "           Statistics), Vol. 21, No. 1 (1972), pp. 1-12.\n",
+            "    \n",
+            "    Examples\n",
+            "    --------\n",
+            "    >>> from scipy import stats\n",
+            "    >>> a = np.array([0, 0, 0, 1, 1, 1, 1])\n",
+            "    >>> b = np.arange(7)\n",
+            "    >>> stats.pearsonr(a, b)\n",
+            "    (0.8660254037844386, 0.011724811003954649)\n",
+            "    \n",
+            "    >>> stats.pearsonr([1, 2, 3, 4, 5], [10, 9, 2.5, 6, 4])\n",
+            "    (-0.7426106572325057, 0.1505558088534455)\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "dataset.corr(method='pearson')"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 175
+        },
+        "id": "F5t5h3RKFYEr",
+        "outputId": "9c938dd6-ba63-4feb-b1ae-9857fc498882"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "                    tahun    jumlah  deklarasi_bulan     total\n",
+              "tahun            1.000000  0.325388         0.979932  0.961970\n",
+              "jumlah           0.325388  1.000000         0.289790  0.276423\n",
+              "deklarasi_bulan  0.979932  0.289790         1.000000  0.970500\n",
+              "total            0.961970  0.276423         0.970500  1.000000"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-f9568037-71e2-42b0-9b29-d3a0dc14e2e7\">\n",
+              "    <div class=\"colab-df-container\">\n",
+              "      <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>tahun</th>\n",
+              "      <th>jumlah</th>\n",
+              "      <th>deklarasi_bulan</th>\n",
+              "      <th>total</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>tahun</th>\n",
+              "      <td>1.000000</td>\n",
+              "      <td>0.325388</td>\n",
+              "      <td>0.979932</td>\n",
+              "      <td>0.961970</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>jumlah</th>\n",
+              "      <td>0.325388</td>\n",
+              "      <td>1.000000</td>\n",
+              "      <td>0.289790</td>\n",
+              "      <td>0.276423</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>deklarasi_bulan</th>\n",
+              "      <td>0.979932</td>\n",
+              "      <td>0.289790</td>\n",
+              "      <td>1.000000</td>\n",
+              "      <td>0.970500</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>total</th>\n",
+              "      <td>0.961970</td>\n",
+              "      <td>0.276423</td>\n",
+              "      <td>0.970500</td>\n",
+              "      <td>1.000000</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "      <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-f9568037-71e2-42b0-9b29-d3a0dc14e2e7')\"\n",
+              "              title=\"Convert this dataframe to an interactive table.\"\n",
+              "              style=\"display:none;\">\n",
+              "        \n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "       width=\"24px\">\n",
+              "    <path d=\"M0 0h24v24H0V0z\" fill=\"none\"/>\n",
+              "    <path d=\"M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z\"/><path d=\"M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z\"/>\n",
+              "  </svg>\n",
+              "      </button>\n",
+              "      \n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      flex-wrap:wrap;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "      <script>\n",
+              "        const buttonEl =\n",
+              "          document.querySelector('#df-f9568037-71e2-42b0-9b29-d3a0dc14e2e7 button.colab-df-convert');\n",
+              "        buttonEl.style.display =\n",
+              "          google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "        async function convertToInteractive(key) {\n",
+              "          const element = document.querySelector('#df-f9568037-71e2-42b0-9b29-d3a0dc14e2e7');\n",
+              "          const dataTable =\n",
+              "            await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                     [key], {});\n",
+              "          if (!dataTable) return;\n",
+              "\n",
+              "          const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "            '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "            + ' to learn more about interactive tables.';\n",
+              "          element.innerHTML = '';\n",
+              "          dataTable['output_type'] = 'display_data';\n",
+              "          await google.colab.output.renderOutput(dataTable, element);\n",
+              "          const docLink = document.createElement('div');\n",
+              "          docLink.innerHTML = docLinkHtml;\n",
+              "          element.appendChild(docLink);\n",
+              "        }\n",
+              "      </script>\n",
+              "    </div>\n",
+              "  </div>\n",
+              "  "
+            ]
+          },
+          "metadata": {},
+          "execution_count": 6
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import sklearn.model_selection as ms\n",
+        "bulan=dataset[['deklarasi_bulan']]\n",
+        "jumlah=dataset[['total']]\n",
+        "X_train, X_test, y_train, y_test=ms.train_test_split(bulan, jumlah, test_size=0.3, random_state=0)"
+      ],
+      "metadata": {
+        "id": "S3GU6iUIFdO_"
+      },
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import sklearn.linear_model as lm\n",
+        "modell = lm.LinearRegression()\n",
+        "modell.fit(X_train, y_train)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "F_CGLPp9FsAf",
+        "outputId": "5dbc03a1-262b-4786-ab55-15cd58ca6202"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "LinearRegression()"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 8
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "modell.coef_"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "_kgM9IamFvMs",
+        "outputId": "6ab97b44-6527-40b6-be8d-431ec6296acc"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[698.75308402]])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "modell.intercept_"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "X_nG2hjZFzxY",
+        "outputId": "d49aced3-f869-4b37-cd2e-0f993b67d4af"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([-6459.80827489])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 10
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_train, X_test, y_train, y_test=ms.train_test_split(bulan, jumlah, test_size=0.3, random_state=0)\n",
+        "plt.scatter(X_train, y_train, edgecolors='r')\n",
+        "plt.xlabel('bulan')\n",
+        "plt.ylabel('jumlah')\n",
+        "plt.title('pendataan')\n",
+        "x1 = np.linspace (0,42)\n",
+        "y1 = -6459.80827489 + 698.75308402 * x1\n",
+        "plt.plot(x1,y1)\n",
+        "plt.show()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 295
+        },
+        "id": "z4hb-B7iF1EQ",
+        "outputId": "0097c16d-7815-4882-978c-5b4085086103"
+      },
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 432x288 with 1 Axes>"
+            ],
+            "image/png": "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\n"
+          },
+          "metadata": {
+            "needs_background": "light"
+          }
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "r2 =  modell.score(X_test, y_test)\n",
+        "print(r2)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "tZdgHJERGJUk",
+        "outputId": "efdc8dba-755c-4d70-c617-c02cf4ae758e"
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "0.9367178827409657\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "jumlah=modell.predict([[61]])\n",
+        "print(jumlah)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "B1Zbe0z6GK2f",
+        "outputId": "ebc04c44-1d68-4e47-f45f-91de0fc169a2"
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[[36164.12985032]]\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.7/dist-packages/sklearn/base.py:451: UserWarning: X does not have valid feature names, but LinearRegression was fitted with feature names\n",
+            "  \"X does not have valid feature names, but\"\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "prediksi = modell.predict(X_test)\n",
+        "print(prediksi)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "vXu3Vkk_Go1b",
+        "outputId": "62065432-da01-472f-8aed-ac9662c7067f"
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[[12406.52499365]\n",
+            " [18695.30274982]\n",
+            " [35465.3767663 ]\n",
+            " [13804.03116168]\n",
+            " [ 1925.22873335]\n",
+            " [-4363.54902283]\n",
+            " [17996.5496658 ]\n",
+            " [34766.62368228]\n",
+            " [22189.06816992]\n",
+            " [ 9611.51265757]\n",
+            " [-2966.04285479]\n",
+            " [ 1226.47564933]\n",
+            " [15201.53732972]\n",
+            " [22887.82125394]\n",
+            " [17297.79658178]\n",
+            " [24285.32742198]\n",
+            " [28477.8459261 ]\n",
+            " [ -869.78360273]]\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
